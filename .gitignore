@@ -1,3 +1,30 @@
-vrukshaverse-backend/node_modules
-vrukshaverse-backend/package-lock.json
+# Node modules
+vrukshaverse-backend/node_modules/
+
+# dotenv
 vrukshaverse-backend/.env
+vrukshaverse-backend/.env.local
+vrukshaverse-backend/.env.*.local
+
+# Build artifacts
+vrukshaverse-backend/dist/
+vrukshaverse-backend/build/
+vrukshaverse-backend/uploads/
+
+# Logs
+vrukshaverse-backend/logs/
+vrukshaverse-backend/*.log
+
+# macOS junk
+.DS_Store
+
+# Editor/IDE stuff
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# npm / yarn lock files (if you're not using them)
+# Uncomment if needed:
+# vrukshaverse-backend/package-lock.json
+# vrukshaverse-backend/yarn.lock
