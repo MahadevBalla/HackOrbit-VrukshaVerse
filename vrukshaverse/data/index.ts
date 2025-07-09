@@ -1,5 +1,6 @@
-// data/index.ts
-export const plants = [
+import { Plant } from './types';
+
+export const plants: Plant[] = [
     {
         id: 1,
         name: 'Tulsi',
@@ -8,7 +9,7 @@ export const plants = [
         description:
             'Known as Holy Basil, Tulsi is revered in Ayurveda for its healing properties. It helps with respiratory issues, digestion, and immunity.',
         image: require('@/assets/images/tulsi.jpg'),
-        audioUrl: '', // optional
+        audioUrl: '',
     },
     {
         id: 2,
@@ -79,6 +80,7 @@ export const plants = [
             'Neem has powerful antibacterial, antifungal, and anti-inflammatory properties. Used in skin care and immunity building.',
         image: require('@/assets/images/neem.jpg'),
         audioUrl: '',
+        model3dUrl: '../assets/models/neem_plant.glb',
     },
     {
         id: 9,
@@ -87,7 +89,7 @@ export const plants = [
         region: 'India, Sri Lanka, Himalayas',
         description:
             'An important herb for women’s health, Shatavari supports reproductive health, lactation, and hormonal balance.',
-        image: require('@/assets/images/shatavari.jpg'),
+        image: require('../assets/images/shatavari.jpg'),
         audioUrl: '',
     },
     {
@@ -99,5 +101,6 @@ export const plants = [
             'Aloe Vera is known for its skin healing, moisturizing, and cooling effects. Also supports digestion and immunity.',
         image: require('@/assets/images/aloe-vera.jpg'),
         audioUrl: '',
+        model3dUrl: '@/assets/models/aloe_vera_plant.glb',
     },
 ];

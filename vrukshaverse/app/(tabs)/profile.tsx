@@ -1,9 +1,11 @@
 import { View, Text, Image, FlatList } from 'react-native';
 import { useAuth } from '@/context/AuthContext';
 import { plants } from '@/data';
+import { PlantProvider } from '@/context/PlantContext';
 
 export default function ProfileScreen() {
     const { user } = useAuth();
+
 
     const captured = [1, 3, 5];
 

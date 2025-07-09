@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Image, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { plants } from '@/data';
+import { plants } from '../../../data';
 import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
@@ -11,6 +11,10 @@ export default function PlantDetail() {
     const router = useRouter();
 
     const plant = plants.find((p) => p.id === Number(id));
+
+    const onViewType = (viewType: "3D" | "AR") => {
+        router.push(`/product/${viewType}?modelUrl=${plant?.model3dUrl}`);
+    };
 
     if (!plant) {
         return (
@@ -31,7 +35,7 @@ export default function PlantDetail() {
             </TouchableOpacity>
 
             <Image
-                source={plant.image}
+                source={{ uri: plant.image ?? "" }}
                 resizeMode="cover"
                 style={{
                     width: width - 32,
@@ -40,6 +44,27 @@ export default function PlantDetail() {
                     marginBottom: 20,
                 }}
             />
+
+            {plant.model3dUrl && (
+                <View className="mb-6 space-y-3">
+                    {["3D", "AR"].map((viewType) => (
+                        <TouchableOpacity
+                            key={viewType}
+                            onPress={() => onViewType(viewType as "3D" | "AR")}
+                            className="bg-green-100 border border-green-500 px-5 py-3 rounded-full flex-row items-center justify-center"
+                        >
+                            <Ionicons
+                                name={viewType === "3D" ? "cube-outline" : "camera-outline"}
+                                size={20}
+                                color="green"
+                            />
+                            <Text className="text-green-800 font-semibold ml-2">
+                                {viewType === "3D" ? "View in 3D" : "View in AR"}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            )}
 
             <Text className="text-2xl font-bold text-green-800">{plant.name}</Text>
             <Text className="text-md italic text-green-600 mb-2">

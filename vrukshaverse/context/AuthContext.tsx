@@ -35,7 +35,7 @@ const AuthContext = createContext<AuthContextType>({
 
 export const useAuth = () => useContext(AuthContext);
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const AUTH_API_BASE_URL = 'http://localhost:5000/api/auth';
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
     const [user, setUser] = useState<User | null>(null);
@@ -68,7 +68,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
     const verifyToken = async (token: string) => {
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/verify`, {
+            const response = await fetch(`${AUTH_API_BASE_URL}/verify`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -90,23 +90,22 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
     const login = async (username: string, password: string): Promise<boolean> => {
         try {
-            // Actual API call (commented out for testing)
-            /*
-            const response = await fetch(`${API_BASE_URL}/auth/login`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ username, password }),
-            });
-      
-            if (!response.ok) {
-              throw new Error('Login failed');
-            }
-      
-            const data = await response.json();
-            const { token, user } = data;
-            */
+
+            // const response = await fetch(`${AUTH_API_BASE_URL}/login`, {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            //     body: JSON.stringify({ username, password }),
+            // });
+
+            // if (!response.ok) {
+            //     throw new Error('Login failed');
+            // }
+
+            // const data = await response.json();
+            // const { token, user } = data;
+
 
             const token = 'fake-jwt-token-for-testing';
             const user = {

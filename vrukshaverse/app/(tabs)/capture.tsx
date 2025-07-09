@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Image, Alert } from 'react-native';
-import { plants } from '@/data';
+import { plants } from '../../data/index';
 
 export default function CaptureScreen() {
     const [captured, setCaptured] = useState<number[]>([]);
