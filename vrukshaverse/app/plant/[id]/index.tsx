@@ -1,88 +1,95 @@
-import React from 'react';
-import { View, Text, Image, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { plants } from '../../../data';
-import { Ionicons } from '@expo/vector-icons';
+import React from "react";
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { plants } from "../../../data";
+import { Ionicons } from "@expo/vector-icons";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
 export default function PlantDetail() {
-    const { id } = useLocalSearchParams();
-    const router = useRouter();
+  const { id } = useLocalSearchParams();
+  const router = useRouter();
 
-    const plant = plants.find((p) => p.id === Number(id));
+  const plant = plants.find((p) => p.id === Number(id));
 
-    const onViewType = (viewType: "3D" | "AR") => {
-        router.push(`/product/${viewType}?modelUrl=${plant?.model3dUrl}`);
-    };
+  const onViewType = (viewType: "z3D" | "AR") => {
+    router.push(`/product/${viewType}?modelUrl=${plant?.model3dUrl}`);
+  };
 
-    if (!plant) {
-        return (
-            <View className="flex-1 justify-center items-center bg-white">
-                <Text className="text-red-500 text-lg">Plant not found</Text>
-                <TouchableOpacity onPress={() => router.back()} className="mt-4">
-                    <Text className="text-blue-500">Go back</Text>
-                </TouchableOpacity>
-            </View>
-        );
-    }
-
+  if (!plant) {
     return (
-        <ScrollView className="flex-1 bg-white px-4 pt-10">
-            {/* Header back button */}
-            <TouchableOpacity onPress={() => router.back()} className="mb-4">
-                <Ionicons name="arrow-back" size={24} color="green" />
+      <View className="flex-1 justify-center items-center bg-white">
+        <Text className="text-red-500 text-lg">Plant not found</Text>
+        <TouchableOpacity onPress={() => router.back()} className="mt-4">
+          <Text className="text-blue-500">Go back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView className="flex-1 bg-white px-4 pt-10">
+      {/* Header back button */}
+      <TouchableOpacity onPress={() => router.back()} className="mb-4">
+        <Ionicons name="arrow-back" size={24} color="green" />
+      </TouchableOpacity>
+
+      <Image
+        source={{ uri: plant.image ?? "" }}
+        resizeMode="cover"
+        style={{
+          width: width - 32,
+          height: 250,
+          borderRadius: 16,
+          marginBottom: 20,
+        }}
+      />
+
+      {plant.model3dUrl && (
+        <View className="mb-6 space-y-3">
+          {["3D", "AR"].map((viewType) => (
+            <TouchableOpacity
+              key={viewType}
+              onPress={() => onViewType(viewType as "3D" | "AR")}
+              className="bg-green-100 border border-green-500 px-5 py-3 rounded-full flex-row items-center justify-center"
+            >
+              <Ionicons
+                name={viewType === "3D" ? "cube-outline" : "camera-outline"}
+                size={20}
+                color="green"
+              />
+              <Text className="text-green-800 font-semibold ml-2">
+                {viewType === "3D" ? "View in 3D" : "View in AR"}
+              </Text>
             </TouchableOpacity>
+          ))}
+        </View>
+      )}
 
-            <Image
-                source={{ uri: plant.image ?? "" }}
-                resizeMode="cover"
-                style={{
-                    width: width - 32,
-                    height: 250,
-                    borderRadius: 16,
-                    marginBottom: 20,
-                }}
-            />
+      <Text className="text-2xl font-bold text-green-800">{plant.name}</Text>
+      <Text className="text-md italic text-green-600 mb-2">
+        {plant.scientificName}
+      </Text>
 
-            {plant.model3dUrl && (
-                <View className="mb-6 space-y-3">
-                    {["3D", "AR"].map((viewType) => (
-                        <TouchableOpacity
-                            key={viewType}
-                            onPress={() => onViewType(viewType as "3D" | "AR")}
-                            className="bg-green-100 border border-green-500 px-5 py-3 rounded-full flex-row items-center justify-center"
-                        >
-                            <Ionicons
-                                name={viewType === "3D" ? "cube-outline" : "camera-outline"}
-                                size={20}
-                                color="green"
-                            />
-                            <Text className="text-green-800 font-semibold ml-2">
-                                {viewType === "3D" ? "View in 3D" : "View in AR"}
-                            </Text>
-                        </TouchableOpacity>
-                    ))}
-                </View>
-            )}
+      <Text className="text-sm text-gray-500 mb-1">Region: {plant.region}</Text>
 
-            <Text className="text-2xl font-bold text-green-800">{plant.name}</Text>
-            <Text className="text-md italic text-green-600 mb-2">
-                {plant.scientificName}
-            </Text>
+      <Text className="mt-4 text-base text-gray-700 leading-6">
+        {plant.description}
+      </Text>
 
-            <Text className="text-sm text-gray-500 mb-1">Region: {plant.region}</Text>
-
-            <Text className="mt-4 text-base text-gray-700 leading-6">
-                {plant.description}
-            </Text>
-
-            {/* <View className="mt-6 space-y-2">
+      {/* <View className="mt-6 space-y-2">
                 <Text className="text-sm text-gray-500">Audio: {plant.audioUrl}</Text>
                 <Text className="text-sm text-gray-500">
                     3D Model: {plant.model_3d_url}
                 </Text>
             </View> */}
-        </ScrollView>
-    );
+    </ScrollView>
+  );
 }

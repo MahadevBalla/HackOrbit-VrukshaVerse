@@ -1,11 +1,22 @@
-const { getDefaultConfig } = require('expo/metro-config');
-const { withNativeWind } = require('nativewind/metro');
-const { wrapWithReanimatedMetroConfig } = require('react-native-reanimated/metro-config');
+const { getDefaultConfig } = require("expo/metro-config");
+const { withNativeWind } = require("nativewind/metro");
+const {
+  wrapWithReanimatedMetroConfig,
+} = require("react-native-reanimated/metro-config");
 
-const config = getDefaultConfig(__dirname);
+// Get the default Expo Metro configuration
+const defaultConfig = getDefaultConfig(__dirname);
 
-config.resolver.assetExts.push('glb');
+// Merge with custom settings
+const config = {
+  ...defaultConfig,
+  resolver: {
+    ...defaultConfig.resolver,
+    assetExts: [...defaultConfig.resolver.assetExts, "glb"],
+  },
+};
 
+// Apply NativeWind configuration first, then wrap with Reanimated
 module.exports = wrapWithReanimatedMetroConfig(
-    withNativeWind(config, { input: './app/globals.css' })
+  withNativeWind(config, { input: "./app/global.css" })
 );

@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.vrukshaverse"
     },
     "android": {
       "adaptiveIcon": {
@@ -39,9 +40,6 @@
     "experiments": {
       "typedRoutes": true
     },
-    "assetBundlePatterns": [
-      "**/*",
-      "**/*.glb"
-    ]
+    "assetBundlePatterns": ["**/*", "**/*.glb"]
   }
 }
