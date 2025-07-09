@@ -1,11 +1,11 @@
 export interface Plant {
     id: number;
     name: string;
-    scientific_name?: string;
+    scientificName?: string;
     region?: string;
     description?: string;
-    image_url?: string;
-    audio_url?: string;
+    image?: string;
+    audioUrl?: string;
     model_3d_url?: string;
 }
 

@@ -35,7 +35,7 @@ export default function LoginPage() {
                 </View>
 
                 <TextInput
-                    className="border border-gray-300 rounded-lg px-4 py-3 mb-4 bg-white"
+                    className="border border-gray-300 rounded-lg px-4 py-3 mb-6 bg-white"
                     placeholder="Username"
                     value={username}
                     onChangeText={setUsername}
@@ -43,7 +43,7 @@ export default function LoginPage() {
                 />
 
                 <TextInput
-                    className="border border-gray-300 rounded-lg px-4 py-3 mb-4 bg-white"
+                    className="border border-gray-300 rounded-lg px-4 py-3 mb-6 bg-white"
                     placeholder="Password"
                     value={password}
                     onChangeText={setPassword}

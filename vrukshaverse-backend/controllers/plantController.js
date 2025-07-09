@@ -32,14 +32,14 @@ const getAllPlants = async (req, res) => {
     }
 };
 const addPlant = async (req, res) => {
-    const { name, scientific_name, region, description, image_url, audio_url, model_3d_url } = req.body;
+    const { name, scientificName, region, description, image, audioUrl, model_3d_url } = req.body;
     if (!name || !region || !description) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
     try {
         const result = await pool.query(
-            'INSERT INTO plants (name, scientific_name, region, description, image_url, audio_url, model_3d_url) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *',
-            [name, scientific_name, region, description, image_url, audio_url, model_3d_url]
+            'INSERT INTO plants (name, scientificName, region, description, image, audioUrl, model_3d_url) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *',
+            [name, scientificName, region, description, image, audioUrl, model_3d_url]
         );
         res.status(201).json(result.rows[0]);
     } catch (err) {
@@ -74,8 +74,8 @@ const uploadPlantFile = async (req, res) => {
     const fileType = req.params.type;
 
     const validFields = {
-        image: 'image_url',
-        audio: 'audio_url',
+        image: 'image',
+        audio: 'audioUrl',
         model: 'model_3d_url'
     };
     const fieldToUpdate = validFields[fileType];

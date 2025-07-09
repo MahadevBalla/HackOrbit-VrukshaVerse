@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AuthProvider } from "@/context/AuthContext";
+import { PlantProvider } from "@/context/PlantContext";
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -31,14 +32,16 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthProvider>
-        <StatusBar style="light" />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: '#ff8c00' },
-            animation: 'fade_from_bottom',
-          }}
-        />
+        <PlantProvider>
+          <StatusBar style="light" />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: '#ff8c00' },
+              animation: 'fade_from_bottom',
+            }}
+          />
+        </PlantProvider>
       </AuthProvider>
     </GestureHandlerRootView>
   );
