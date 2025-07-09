@@ -1,95 +1,244 @@
-import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { router } from 'expo-router';
+import React, { useState } from 'react';
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    ActivityIndicator,
+    Alert,
+    StatusBar,
+    Dimensions,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/context/AuthContext';
+import { router } from 'expo-router';
+import * as Haptics from 'expo-haptics';
+
+const { width } = Dimensions.get('window');
 
 export default function SignupPage() {
     const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirm, setConfirm] = useState('');
     const [loading, setLoading] = useState(false);
-    const { signup } = useAuth();
+    const { register } = useAuth();
 
     const handleSignup = async () => {
-        if (!username || !email || !password || !confirm) {
+        if (!username || !password || !confirm) {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
             Alert.alert('Validation Error', 'Please fill all fields');
             return;
         }
 
         if (password !== confirm) {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
             Alert.alert('Password Mismatch', 'Passwords do not match');
             return;
         }
 
         setLoading(true);
-        const success = await signup({ username, email, password });
+        const success = await register(username, password);
         setLoading(false);
 
-        if (success) {
-            router.replace('/(tabs)');
-        } else {
+        if (!success) {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
             Alert.alert('Signup Failed', 'Something went wrong. Please try again.');
+        } else {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
     };
 
     return (
-        <View className="flex-1 justify-center items-center bg-white px-4">
-            <View className="w-full max-w-md bg-gray-100 rounded-2xl p-6 shadow-md">
-                <View className="items-center mb-4">
-                    <Text className="text-2xl font-bold text-green-700">🌱 VrukshaVerse</Text>
-                    <Text className="text-gray-600">Create an account to begin your journey</Text>
+        <LinearGradient
+            colors={['#F0FDF4', '#DCFCE7', '#BBF7D0']}
+            style={{ flex: 1, paddingTop: StatusBar.currentHeight || 40 }}
+        >
+            <StatusBar barStyle="dark-content" />
+
+            <View style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                paddingHorizontal: 24
+            }}>
+                <View style={{
+                    width: width * 0.9,
+                    maxWidth: 400,
+                    backgroundColor: 'white',
+                    borderRadius: 24,
+                    padding: 32,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 8 },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 24,
+                    elevation: 8,
+                }}>
+                    <View style={{ alignItems: 'center', marginBottom: 32 }}>
+                        <Text style={{
+                            fontSize: 32,
+                            fontWeight: '800',
+                            color: '#1F2937',
+                            marginBottom: 8,
+                        }}>
+                            Create Account
+                        </Text>
+                        <Text style={{
+                            fontSize: 16,
+                            color: '#6B7280',
+                            textAlign: 'center',
+                            lineHeight: 24,
+                        }}>
+                            Join the VrukshaVerse and grow with us 🌱
+                        </Text>
+                    </View>
+
+                    {/* Username Field */}
+                    <View style={{ marginBottom: 24 }}>
+                        <Text style={{
+                            fontSize: 14,
+                            fontWeight: '600',
+                            color: '#374151',
+                            marginBottom: 8,
+                        }}>
+                            Username
+                        </Text>
+                        <TextInput
+                            style={{
+                                borderWidth: 1,
+                                borderColor: '#D1D5DB',
+                                borderRadius: 12,
+                                paddingHorizontal: 16,
+                                paddingVertical: 14,
+                                backgroundColor: '#F9FAFB',
+                                fontSize: 16,
+                                color: '#1F2937',
+                            }}
+                            placeholder="Enter your username"
+                            value={username}
+                            onChangeText={setUsername}
+                            autoCapitalize="none"
+                            placeholderTextColor="#9CA3AF"
+                        />
+                    </View>
+
+                    {/* Password Field */}
+                    <View style={{ marginBottom: 24 }}>
+                        <Text style={{
+                            fontSize: 14,
+                            fontWeight: '600',
+                            color: '#374151',
+                            marginBottom: 8,
+                        }}>
+                            Password
+                        </Text>
+                        <TextInput
+                            style={{
+                                borderWidth: 1,
+                                borderColor: '#D1D5DB',
+                                borderRadius: 12,
+                                paddingHorizontal: 16,
+                                paddingVertical: 14,
+                                backgroundColor: '#F9FAFB',
+                                fontSize: 16,
+                                color: '#1F2937',
+                            }}
+                            placeholder="Enter your password"
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry
+                            placeholderTextColor="#9CA3AF"
+                        />
+                    </View>
+
+                    {/* Confirm Password */}
+                    <View style={{ marginBottom: 24 }}>
+                        <Text style={{
+                            fontSize: 14,
+                            fontWeight: '600',
+                            color: '#374151',
+                            marginBottom: 8,
+                        }}>
+                            Confirm Password
+                        </Text>
+                        <TextInput
+                            style={{
+                                borderWidth: 1,
+                                borderColor: '#D1D5DB',
+                                borderRadius: 12,
+                                paddingHorizontal: 16,
+                                paddingVertical: 14,
+                                backgroundColor: '#F9FAFB',
+                                fontSize: 16,
+                                color: '#1F2937',
+                            }}
+                            placeholder="Re-enter your password"
+                            value={confirm}
+                            onChangeText={setConfirm}
+                            secureTextEntry
+                            placeholderTextColor="#9CA3AF"
+                        />
+                    </View>
+
+                    {/* Sign Up Button */}
+                    <TouchableOpacity
+                        onPress={handleSignup}
+                        disabled={loading}
+                        style={{
+                            backgroundColor: loading ? '#9CA3AF' : '#16A34A',
+                            paddingVertical: 16,
+                            borderRadius: 12,
+                            marginBottom: 24,
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 2 },
+                            shadowOpacity: 0.1,
+                            shadowRadius: 4,
+                            elevation: 3,
+                        }}
+                    >
+                        {loading ? (
+                            <ActivityIndicator color="white" size="small" />
+                        ) : (
+                            <Text style={{
+                                color: 'white',
+                                textAlign: 'center',
+                                fontSize: 16,
+                                fontWeight: '600',
+                            }}>
+                                Sign Up
+                            </Text>
+                        )}
+                    </TouchableOpacity>
+
+                    {/* Link to Login */}
+                    <View style={{
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                        <Text style={{
+                            fontSize: 14,
+                            color: '#6B7280',
+                        }}>
+                            Already have an account?
+                        </Text>
+                        <TouchableOpacity
+                            onPress={() => {
+                                Haptics.selectionAsync();
+                                router.replace('/(auth)/login');
+                            }}
+                            style={{ marginLeft: 4 }}
+                        >
+                            <Text style={{
+                                color: '#16A34A',
+                                fontSize: 14,
+                                fontWeight: '600',
+                            }}>
+                                Log In
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-
-                <TextInput
-                    className="border border-gray-300 rounded-lg px-4 py-3 mb-3 bg-white"
-                    placeholder="Username"
-                    value={username}
-                    onChangeText={setUsername}
-                    autoCapitalize="none"
-                />
-
-                <TextInput
-                    className="border border-gray-300 rounded-lg px-4 py-3 mb-3 bg-white"
-                    placeholder="Email"
-                    value={email}
-                    onChangeText={setEmail}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                />
-
-                <TextInput
-                    className="border border-gray-300 rounded-lg px-4 py-3 mb-3 bg-white"
-                    placeholder="Password"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                />
-
-                <TextInput
-                    className="border border-gray-300 rounded-lg px-4 py-3 mb-4 bg-white"
-                    placeholder="Confirm Password"
-                    value={confirm}
-                    onChangeText={setConfirm}
-                    secureTextEntry
-                />
-
-                <TouchableOpacity
-                    onPress={handleSignup}
-                    className={`rounded-lg px-4 py-3 ${loading ? 'bg-green-400' : 'bg-green-600'}`}
-                    disabled={loading}
-                >
-                    {loading ? (
-                        <ActivityIndicator color="white" />
-                    ) : (
-                        <Text className="text-white text-center font-semibold">Sign Up</Text>
-                    )}
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={() => router.replace('/(auth)/login')} className="mt-4">
-                    <Text className="text-center text-green-700 underline">Already have an account? Log in</Text>
-                </TouchableOpacity>
             </View>
-        </View>
+        </LinearGradient>
     );
 }

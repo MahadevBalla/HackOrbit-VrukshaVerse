@@ -18,6 +18,9 @@ export default function ExploreScreen() {
         value={query}
         onChangeText={setQuery}
         placeholder="Search medicinal plants..."
+        style={{
+          marginTop: 15,
+        }}
       />
 
       <FlatList

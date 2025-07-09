@@ -11,6 +11,7 @@ import {
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
+
 const { width, height } = Dimensions.get("window");
 
 const slides = [
@@ -18,21 +19,24 @@ const slides = [
     key: "1",
     title: "Welcome to VrukshaVerse",
     description:
-      "Explore the world of medicinal plants and their healing powers.",
+      "Explore the world of medicinal plants and their healing powers with our comprehensive herbal guide. " +
+      "Begin your journey into the vibrant ecosystem of nature’s pharmacy, right from your device. ",
     image: require("@/assets/images/tulsi.jpg"),
   },
   {
     key: "2",
     title: "Learn & Discover",
     description:
-      "Access detailed knowledge about herbs, uses, and cultivation.",
+      "Access detailed knowledge about herbs, their uses, benefits, and cultivation methods from experts." +
+      "Dive into plant profiles, seasonal tips, and cultivation guides tailored for home and garden. " +
+      "Every tap brings you closer to mastering the power of nature’s remedies.",
     image: require("@/assets/images/neem.jpg"),
   },
   {
     key: "3",
     title: "Grow with Nature",
     description:
-      "Build your virtual herbal garden and deepen your connection with nature.",
+      "Build your virtual herbal garden and deepen your connection with nature through interactive experiences.",
     image: require("@/assets/images/aloe-vera.jpg"),
   },
 ];
@@ -44,11 +48,19 @@ export default function Onboarding() {
 
   const handleNext = () => {
     if (currentIndex === slides.length - 1) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace("/(auth)/login");
+      return; // Stay on the last slide to show auth options
     } else {
       Haptics.selectionAsync();
       flatListRef.current?.scrollToIndex({ index: currentIndex + 1 });
+    }
+  };
+
+  const handleAuth = (type) => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    if (type === 'login') {
+      router.replace("/(auth)/login");
+    } else {
+      router.replace("/(auth)/signup");
     }
   };
 
@@ -58,9 +70,63 @@ export default function Onboarding() {
     }
   }).current;
 
+  const renderAuthButtons = () => (
+    <View style={{ width: '100%', paddingHorizontal: 24 }}>
+      <TouchableOpacity
+        onPress={() => handleAuth('signup')}
+        style={{
+          backgroundColor: "#2F855A",
+          paddingVertical: 16,
+          paddingHorizontal: 40,
+          borderRadius: 30,
+          marginBottom: 16,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 3 },
+          shadowOpacity: 0.2,
+          shadowRadius: 5,
+          elevation: 5,
+        }}
+      >
+        <Text
+          style={{
+            color: "white",
+            fontWeight: "700",
+            fontSize: 18,
+            textAlign: "center",
+          }}
+        >
+          Create Account
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => handleAuth('login')}
+        style={{
+          backgroundColor: "transparent",
+          borderWidth: 2,
+          borderColor: "#2F855A",
+          paddingVertical: 14,
+          paddingHorizontal: 40,
+          borderRadius: 30,
+        }}
+      >
+        <Text
+          style={{
+            color: "#2F855A",
+            fontWeight: "600",
+            fontSize: 18,
+            textAlign: "center",
+          }}
+        >
+          Login
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
     <LinearGradient
-      colors={["#DEF8E4", "#B3E59F"]}
+      colors={["#F0FDF4", "#DCFCE7", "#BBF7D0"]}
       style={{ flex: 1, paddingTop: 40 }}
     >
       <StatusBar barStyle="dark-content" />
@@ -80,33 +146,57 @@ export default function Onboarding() {
               width,
               height,
               alignItems: "center",
-              justifyContent: "center",
+              marginTop: 26,
               paddingHorizontal: 24,
             }}
           >
-            <Image
-              source={item.image}
-              style={{ width: width * 0.8, height: height * 0.4 }}
-              resizeMode="contain"
-            />
+            <View
+              style={{
+                width: width * 0.85,
+                height: height * 0.4,
+                borderRadius: 20,
+                overflow: 'hidden',
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 8 },
+                shadowOpacity: 0.15,
+                shadowRadius: 12,
+                elevation: 8,
+                backgroundColor: 'white',
+              }}
+            >
+              <Image
+                source={item.image}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: 20,
+                }}
+                resizeMode="cover"
+              />
+            </View>
+
             <Text
               style={{
-                fontSize: 24,
-                fontWeight: "700",
-                color: "#2F855A",
+                fontSize: 28,
+                fontWeight: "800",
+                color: "#1F2937",
                 textAlign: "center",
-                marginTop: 24,
+                marginTop: 32,
+                lineHeight: 34,
               }}
             >
               {item.title}
             </Text>
+
             <Text
               style={{
                 fontSize: 16,
-                color: "#276749",
+                color: "#4B5563",
                 textAlign: "center",
-                marginTop: 8,
-                lineHeight: 22,
+                marginTop: 16,
+                lineHeight: 24,
+                maxWidth: width * 0.85,
+                letterSpacing: 0.5,
               }}
             >
               {item.description}
@@ -125,7 +215,7 @@ export default function Onboarding() {
         }}
       >
         {/* Dots */}
-        <View style={{ flexDirection: "row", marginBottom: 24 }}>
+        <View style={{ flexDirection: "row", marginBottom: 32 }}>
           {slides.map((_, index) => (
             <View
               key={index}
@@ -133,34 +223,44 @@ export default function Onboarding() {
                 height: 8,
                 marginHorizontal: 6,
                 borderRadius: 4,
-                width: currentIndex === index ? 20 : 8,
-                backgroundColor: currentIndex === index ? "#2F855A" : "#68D391",
+                width: currentIndex === index ? 32 : 8,
+                backgroundColor: currentIndex === index ? "#16A34A" : "#86EFAC",
+                opacity: currentIndex === index ? 1 : 0.5,
               }}
             />
           ))}
         </View>
 
-        {/* Button */}
-        <TouchableOpacity
-          onPress={handleNext}
-          style={{
-            backgroundColor: "#276749",
-            paddingVertical: 14,
-            paddingHorizontal: 40,
-            borderRadius: 30,
-          }}
-        >
-          <Text
+        {/* Auth Buttons or Next Button */}
+        {currentIndex === slides.length - 1 ? (
+          renderAuthButtons()
+        ) : (
+          <TouchableOpacity
+            onPress={handleNext}
             style={{
-              color: "white",
-              fontWeight: "600",
-              fontSize: 18,
-              textAlign: "center",
+              backgroundColor: "#16A34A",
+              paddingVertical: 16,
+              paddingHorizontal: 50,
+              borderRadius: 30,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 3 },
+              shadowOpacity: 0.2,
+              shadowRadius: 5,
+              elevation: 5,
             }}
           >
-            {currentIndex === slides.length - 1 ? "Get Started" : "Next"}
-          </Text>
-        </TouchableOpacity>
+            <Text
+              style={{
+                color: "white",
+                fontWeight: "700",
+                fontSize: 18,
+                textAlign: "center",
+              }}
+            >
+              Next
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
     </LinearGradient>
   );

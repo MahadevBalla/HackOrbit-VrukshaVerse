@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Camera,
   DefaultLight,
@@ -19,9 +19,13 @@ import { useSharedValue } from "react-native-worklets-core";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { Asset } from "expo-asset";
+import { runOnJS } from "react-native-reanimated";
 
 import neemPlantModel from "../../assets/models/neem_plant.glb";
 import aloeVeraPlantModel from "../../assets/models/aloe_vera_plant.glb";
+import amlaModel from "../../assets/models/amla.glb";
+import brahmiModel from "../../assets/models/brahmi.glb";
+import ashwagandhaModel from "../../assets/models/ashwagandha.glb";
 
 function getFileName(path: string) {
   if (!path) return "";
@@ -49,23 +53,40 @@ function Scene({ modelUrl }: { modelUrl: string }) {
     orbitSpeed: [0.003, 0.003],
   });
 
+  const grabBegin = useCallback((x: number, y: number) => {
+    cameraManipulator?.grabBegin(x, y, false);
+  }, [cameraManipulator]);
+
+  const grabUpdate = useCallback((x: number, y: number) => {
+    cameraManipulator?.grabUpdate(x, y);
+  }, [cameraManipulator]);
+
+  const grabEnd = useCallback(() => {
+    cameraManipulator?.grabEnd();
+  }, [cameraManipulator]);
+
+  const scroll = useCallback((x: number, y: number, delta: number) => {
+    cameraManipulator?.scroll(x, y, delta);
+  }, [cameraManipulator]);
+
+
   // Pan gesture
   const viewHeight = Dimensions.get("window").height;
   const panGesture = Gesture.Pan()
     .onBegin((event) => {
       'worklet';
       const yCorrected = viewHeight - event.translationY;
-      cameraManipulator?.grabBegin(event.translationX, yCorrected, false); // false means rotation instead of translation
+      runOnJS(grabBegin)(event.translationX, yCorrected);
     })
     .onUpdate((event) => {
       'worklet';
       const yCorrected = viewHeight - event.translationY;
-      cameraManipulator?.grabUpdate(event.translationX, yCorrected);
+      runOnJS(grabUpdate)(event.translationX, yCorrected);
     })
     .maxPointers(1)
     .onEnd(() => {
       'worklet';
-      cameraManipulator?.grabEnd();
+      runOnJS(grabEnd)();
     });
 
   // Scale gesture
@@ -79,7 +100,7 @@ function Scene({ modelUrl }: { modelUrl: string }) {
     .onUpdate(({ scale, focalX, focalY }) => {
       'worklet';
       const delta = scale - previousScale.value;
-      cameraManipulator?.scroll(focalX, focalY, -delta * scaleMultiplier);
+      runOnJS(scroll)(focalX, focalY, -delta * scaleMultiplier);
       previousScale.value = scale;
     });
   const combinedGesture = Gesture.Race(pinchGesture, panGesture);
@@ -104,6 +125,9 @@ export default function Plant3DScreen() {
   const modelMap: Record<string, any> = {
     "neem_plant.glb": neemPlantModel,
     "aloe_vera_plant.glb": aloeVeraPlantModel,
+    "brahmi.glb": brahmiModel,
+    "amla.glb": amlaModel,
+    "ashwagandha.glb": ashwagandhaModel
   };
 
   useEffect(() => {
