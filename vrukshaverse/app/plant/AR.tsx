@@ -1,6 +1,10 @@
+import { Text, View } from "react-native";
+
 const AR = () => {
-    return (
-        <div>AR</div>
-    )
-}
+  return (
+    <View>
+      <Text>AR</Text>
+    </View>
+  );
+};
 export default AR;

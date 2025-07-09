@@ -19,11 +19,10 @@ import { useSharedValue } from "react-native-worklets-core";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Asset } from "expo-asset";
-
 import neemPlantModel from "../../assets/models/neem_plant.glb";
-import aloeVeraPlantModel from "../../../assets/models/aloe_vera_plant.glb";
+import aloeVeraPlantModel from "../../assets/models/aloe_vera_plant.glb";
 
-function getModelAssetPath(fileName: string): string {
+function getModelAssetPath(fileName: string): string | null {
   const modelMap: Record<string, any> = {
     "neem_plant.glb": neemPlantModel,
     "aloe_vera_plant.glb": aloeVeraPlantModel,
@@ -33,10 +32,15 @@ function getModelAssetPath(fileName: string): string {
   const requiredModule = modelMap[fileName];
   if (!requiredModule) {
     console.warn(`Model "${fileName}" not found in modelMap`);
-    return "";
+    return null; // Return null instead of empty string
   }
 
-  return Asset.fromModule(requiredModule).uri;
+  try {
+    return Asset.fromModule(requiredModule).uri;
+  } catch (error) {
+    console.error(`Error loading asset for ${fileName}:`, error);
+    return null;
+  }
 }
 
 function Scene({ modelUrl }: { modelUrl: string }) {
@@ -92,7 +96,25 @@ function Scene({ modelUrl }: { modelUrl: string }) {
 export default function Plant3DScreen() {
   const { modelUrl } = useLocalSearchParams<{ modelUrl: string }>();
 
-  const resolvedUri = modelUrl ? getModelAssetPath(modelUrl) : "";
+  // Add validation for modelUrl parameter
+  if (!modelUrl) {
+    return (
+      <FilamentScene>
+        <TouchableOpacity
+          onPress={router.back}
+          style={styles.backButton}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="arrow-back" size={28} color="white" />
+        </TouchableOpacity>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>No model specified</Text>
+        </View>
+      </FilamentScene>
+    );
+  }
+
+  const resolvedUri = getModelAssetPath(modelUrl);
 
   return (
     <FilamentScene>
@@ -109,10 +131,11 @@ export default function Plant3DScreen() {
       {resolvedUri ? (
         <Scene modelUrl={resolvedUri} />
       ) : (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <Text>Model not found</Text>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Model "{modelUrl}" not found</Text>
+          <Text style={styles.errorSubtext}>
+            Please check if the model file exists in the assets folder
+          </Text>
         </View>
       )}
     </FilamentScene>
@@ -128,5 +151,23 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.4)",
     borderRadius: 30,
     padding: 8,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  errorSubtext: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
   },
 });
