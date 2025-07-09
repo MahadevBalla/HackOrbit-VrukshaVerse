@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Camera,
   DefaultLight,
@@ -12,51 +12,52 @@ import {
   Dimensions,
   StyleSheet,
   View,
-  TouchableOpacity,
   Text,
+  TouchableOpacity,
 } from "react-native";
 import { useSharedValue } from "react-native-worklets-core";
-import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from "expo-router";
 import { Asset } from "expo-asset";
+
+// Static imports for your models
 import neemPlantModel from "../../assets/models/neem_plant.glb";
 import aloeVeraPlantModel from "../../assets/models/aloe_vera_plant.glb";
 
-function getModelAssetPath(fileName: string): string | null {
-  const modelMap: Record<string, any> = {
-    "neem_plant.glb": neemPlantModel,
-    "aloe_vera_plant.glb": aloeVeraPlantModel,
-    // Add more model names here
-  };
+// Helper: Extract filename from path
+function getFileName(path: string) {
+  if (!path) return "";
+  const parts = path.split("/");
+  return parts[parts.length - 1];
+}
 
-  const requiredModule = modelMap[fileName];
-  if (!requiredModule) {
-    console.warn(`Model "${fileName}" not found in modelMap`);
-    return null; // Return null instead of empty string
-  }
-
+// Helper: Convert static module import to URI string (download asset if needed)
+async function getModelUri(modelModule: any): Promise<string> {
   try {
-    return Asset.fromModule(requiredModule).uri;
-  } catch (error) {
-    console.error(`Error loading asset for ${fileName}:`, error);
-    return null;
+    const asset = Asset.fromModule(modelModule);
+    if (!asset.localUri) {
+      await asset.downloadAsync();
+    }
+    return asset.localUri || asset.uri;
+  } catch (e) {
+    console.error("Error loading model asset:", e);
+    return "";
   }
 }
 
 function Scene({ modelUrl }: { modelUrl: string }) {
   const cameraManipulator = useCameraManipulator({
-    orbitHomePosition: [0, 0, 8],
-    targetPosition: [0, 0, 0],
+    orbitHomePosition: [0, 0, 8], // Camera location
+    targetPosition: [0, 0, 0], // Looking at
     orbitSpeed: [0.003, 0.003],
   });
 
-  const viewHeight = Dimensions.get("window").height;
-
   // Pan gesture
+  const viewHeight = Dimensions.get("window").height;
   const panGesture = Gesture.Pan()
     .onBegin((event) => {
       const yCorrected = viewHeight - event.translationY;
-      cameraManipulator?.grabBegin(event.translationX, yCorrected, false);
+      cameraManipulator?.grabBegin(event.translationX, yCorrected, false); // false means rotation instead of translation
     })
     .onUpdate((event) => {
       const yCorrected = viewHeight - event.translationY;
@@ -67,7 +68,7 @@ function Scene({ modelUrl }: { modelUrl: string }) {
       cameraManipulator?.grabEnd();
     });
 
-  // Pinch gesture
+  // Scale gesture
   const previousScale = useSharedValue(1);
   const scaleMultiplier = 100;
   const pinchGesture = Gesture.Pinch()
@@ -79,12 +80,11 @@ function Scene({ modelUrl }: { modelUrl: string }) {
       cameraManipulator?.scroll(focalX, focalY, -delta * scaleMultiplier);
       previousScale.value = scale;
     });
-
   const combinedGesture = Gesture.Race(pinchGesture, panGesture);
 
   return (
     <GestureDetector gesture={combinedGesture}>
-      <FilamentView>
+      <FilamentView style={{ flex: 1 }}>
         <Camera cameraManipulator={cameraManipulator} />
         <DefaultLight />
         <Model source={{ uri: modelUrl }} transformToUnitCube />
@@ -95,50 +95,88 @@ function Scene({ modelUrl }: { modelUrl: string }) {
 
 export default function Plant3DScreen() {
   const { modelUrl } = useLocalSearchParams<{ modelUrl: string }>();
+  const [resolvedModelUri, setResolvedModelUri] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Add validation for modelUrl parameter
+  // Map filenames to static imports
+  const modelMap: Record<string, any> = {
+    "neem_plant.glb": neemPlantModel,
+    "aloe_vera_plant.glb": aloeVeraPlantModel,
+  };
+
+  useEffect(() => {
+    async function resolveUri() {
+      if (!modelUrl) {
+        setResolvedModelUri(null);
+        setLoading(false);
+        return;
+      }
+      const filename = getFileName(modelUrl);
+      if (!filename || !modelMap[filename]) {
+        setResolvedModelUri(null);
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      const uri = await getModelUri(modelMap[filename]);
+      setResolvedModelUri(uri);
+      setLoading(false);
+    }
+    resolveUri();
+  }, [modelUrl]);
+
   if (!modelUrl) {
     return (
-      <FilamentScene>
+      <View style={styles.centered}>
+        <Text style={styles.errorText}>No model specified</Text>
         <TouchableOpacity
-          onPress={router.back}
+          onPress={() => router.back()}
           style={styles.backButton}
-          activeOpacity={0.7}
         >
           <Ionicons name="arrow-back" size={28} color="white" />
         </TouchableOpacity>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>No model specified</Text>
-        </View>
-      </FilamentScene>
+      </View>
     );
   }
 
-  const resolvedUri = getModelAssetPath(modelUrl);
+  if (loading) {
+    return (
+      <View style={styles.centered}>
+        <Text style={{ fontSize: 16 }}>Loading model...</Text>
+      </View>
+    );
+  }
+
+  if (!resolvedModelUri) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.errorText}>
+          Model &quot;{getFileName(modelUrl)}&quot; not found
+        </Text>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
+          <Ionicons name="arrow-back" size={28} color="white" />
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
-    <FilamentScene>
-      {/* Custom Floating Back Button */}
+    <>
       <TouchableOpacity
-        onPress={router.back}
+        onPress={() => router.back()}
         style={styles.backButton}
         activeOpacity={0.7}
       >
         <Ionicons name="arrow-back" size={28} color="white" />
       </TouchableOpacity>
 
-      {/* 3D Model Scene */}
-      {resolvedUri ? (
-        <Scene modelUrl={resolvedUri} />
-      ) : (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Model "{modelUrl}" not found</Text>
-          <Text style={styles.errorSubtext}>
-            Please check if the model file exists in the assets folder
-          </Text>
-        </View>
-      )}
-    </FilamentScene>
+      <FilamentScene style={{ flex: 1 }}>
+        <Scene modelUrl={resolvedModelUri} />
+      </FilamentScene>
+    </>
   );
 }
 
@@ -152,22 +190,16 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     padding: 8,
   },
-  errorContainer: {
+  centered: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    backgroundColor: "#fff",
   },
   errorText: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#333",
-    textAlign: "center",
-    marginBottom: 10,
-  },
-  errorSubtext: {
-    fontSize: 14,
-    color: "#666",
-    textAlign: "center",
+    marginBottom: 12,
   },
 });
