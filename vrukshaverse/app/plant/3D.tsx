@@ -20,18 +20,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { Asset } from "expo-asset";
 
-// Static imports for your models
 import neemPlantModel from "../../assets/models/neem_plant.glb";
 import aloeVeraPlantModel from "../../assets/models/aloe_vera_plant.glb";
 
-// Helper: Extract filename from path
 function getFileName(path: string) {
   if (!path) return "";
   const parts = path.split("/");
   return parts[parts.length - 1];
 }
 
-// Helper: Convert static module import to URI string (download asset if needed)
 async function getModelUri(modelModule: any): Promise<string> {
   try {
     const asset = Asset.fromModule(modelModule);
@@ -56,15 +53,18 @@ function Scene({ modelUrl }: { modelUrl: string }) {
   const viewHeight = Dimensions.get("window").height;
   const panGesture = Gesture.Pan()
     .onBegin((event) => {
+      'worklet';
       const yCorrected = viewHeight - event.translationY;
       cameraManipulator?.grabBegin(event.translationX, yCorrected, false); // false means rotation instead of translation
     })
     .onUpdate((event) => {
+      'worklet';
       const yCorrected = viewHeight - event.translationY;
       cameraManipulator?.grabUpdate(event.translationX, yCorrected);
     })
     .maxPointers(1)
     .onEnd(() => {
+      'worklet';
       cameraManipulator?.grabEnd();
     });
 
@@ -73,9 +73,11 @@ function Scene({ modelUrl }: { modelUrl: string }) {
   const scaleMultiplier = 100;
   const pinchGesture = Gesture.Pinch()
     .onBegin(({ scale }) => {
+      'worklet';
       previousScale.value = scale;
     })
     .onUpdate(({ scale, focalX, focalY }) => {
+      'worklet';
       const delta = scale - previousScale.value;
       cameraManipulator?.scroll(focalX, focalY, -delta * scaleMultiplier);
       previousScale.value = scale;

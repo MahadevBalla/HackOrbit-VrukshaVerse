@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
@@ -8,8 +8,8 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { plants } from "../../../data";
 import { Ionicons } from "@expo/vector-icons";
+import { plants } from '../../../data/index'
 
 const { width } = Dimensions.get("window");
 
@@ -19,25 +19,21 @@ export default function PlantDetail() {
   const plant = plants.find((p) => p.id === Number(id));
 
   const onViewType = (viewType: "3D" | "AR") => {
-    // Try different routing approaches based on your file structure
     try {
       if (viewType === "3D") {
-        // Option 1: If 3D.tsx is in the same directory
         router.push({
           pathname: "/plant/3D",
           params: { modelUrl: plant?.model3dUrl || "" },
         });
       } else {
-        // Option 1: If AR.tsx is in the same directory
         router.push({
           pathname: "/plant/AR",
           params: { modelUrl: plant?.model3dUrl || "" },
         });
       }
     } catch (error) {
-      // Fallback: Try with product prefix
       router.push({
-        pathname: `/product/${viewType}`,
+        pathname: `/plant/${viewType}`,
         params: { modelUrl: plant?.model3dUrl || "" },
       });
     }
